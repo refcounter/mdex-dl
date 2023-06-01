@@ -27,6 +27,6 @@ func DownloadManga(mangaId, lang string, startChapter, endChapter int) {
 }
 
 func main() {
-  testId := "ff861098-94a8-470e-ad24-f21f691d3a5d"
-  DownloadManga(testId, "pt-br", 0, 0)
+  testId := "d1a9fdeb-f713-407f-960c-8326b586e6fd"
+  DownloadManga(testId, "pt-br",  0, 0)
 }
