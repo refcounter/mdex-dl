@@ -42,8 +42,8 @@ func GetMangaAggregate(mangaId, lang string) []byte  {
   return parseBody(res.Body)
 }
 
-func GetChapterImage(chapterId string, forceHttps string ) []byte {
-  res, err := phttp.Get(IMAGE + chapterId + "?forcePort443=" + forceHttps)
+func GetChapterImage(chapterId string) []byte {
+  res, err := phttp.Get(IMAGE + chapterId)
 
   if err != nil {
     log.Fatal(err)
