@@ -13,13 +13,21 @@ mv mdex-dl ~/.local/bin/
 ```
 
 ## Usage
+<video width="320" height="240" controls>
+  <source src="./assets/single-download.gif" type="video/mp4">
+</video>
+
+![Alt Text](https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif)
 Should be as strainghtforward as running the included binary
 ```bash
 mdex-dl --help
-mdex-dl v0.0.1 - A simple mangadex downloader
+
+mdex-dl v0.1 - A simple mangadex downloader
 
 Flags:
 
+  -dir string
+    	Custom Download Directory (default ".")
   -ds
     	Data Saver mode (default true)
   -ec int
@@ -28,6 +36,7 @@ Flags:
     	Get help on the 'mdex-dl' command.
   -lang string
     	Translator language (default "en")
+  -s	Link is Single Chapter?
   -sc int
     	Start Chapter
   -url string
@@ -35,5 +44,15 @@ Flags:
 
 ```
 
+## ToDo
+- [x]   Download Whole Manga
+- [x]   Download Single Chapter
+- []    Download to Custom Directory
+- [x]   Show Download Progess
+- []    Download Cover
+- []    Make it Concurent
+
+
 ## License
 mdex-dl is under MIT License. See [LICENSE](./LICENSE)
+

@@ -94,6 +94,46 @@ func parseMangaFromLink(url string) (title, id string) {
   return urlParts[len(urlParts)-1], urlParts[len(urlParts)-2]
 }
 
+func SingleDownload(mangaUrl string, dataSaver bool)  {
+  // chapter is the last index, the other can be ignored
+  chapterId, _ := parseMangaFromLink(mangaUrl)
+
+  imageQuality := "dataSaver"
+  downloadQuality := "data-saver"
+  if !dataSaver {
+    imageQuality = "data" // original quality 
+    downloadQuality = "data"
+  }
+    
+  imagesLink := GetChapterImage(chapterId)
+  baseUrl, _ := jsonparser.GetString(imagesLink, "baseUrl")
+  chapterHash, _ := jsonparser.GetString(imagesLink, "chapter", "hash")
+  
+  targetDir, err := makeDir(".", "singleDownload-"+chapterHash) 
+  
+  if err != nil {
+    log.Fatal("Error making directories")
+  }
+
+  fmt.Println("Downloaing to: ", targetDir)
+
+
+  jsonparser.ArrayEach(imagesLink, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
+    imageName := string(value)
+    imageUrl := baseUrl +"/"+ downloadQuality +"/"+ chapterHash +"/"+ imageName
+    image := FetchImage(imageUrl)
+
+    e := createFile(targetDir, imageName, image)
+
+    if e != nil {
+      log.Fatal("unable to download image", e)
+    }
+
+  }, "chapter", imageQuality)
+
+  fmt.Println("Done!")
+}
+
 func DownloadManga(mangaUrl, lang string, 
   startChapter, endChapter int, dataSaver bool) {
 
