@@ -13,12 +13,11 @@ mv mdex-dl ~/.local/bin/
 ```
 
 ## Usage
-<video width="320" height="240" controls>
-  <source src="./assets/single-download.gif" type="video/mp4">
-</video>
-
-![Alt Text](https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif)
 Should be as strainghtforward as running the included binary
+
+![Batch Download](./assets/batch-download.gif)
+![Single Download](./assets/single-download.gif)
+
 ```bash
 mdex-dl --help
 
@@ -47,11 +46,10 @@ Flags:
 ## ToDo
 - [x]   Download Whole Manga
 - [x]   Download Single Chapter
-- []    Download to Custom Directory
+- [ ]   Download to Custom Directory
 - [x]   Show Download Progess
-- []    Download Cover
-- []    Make it Concurent
-
+- [ ]   Download Cover
+- [ ]   Make it Concurent
 
 ## License
 mdex-dl is under MIT License. See [LICENSE](./LICENSE)
