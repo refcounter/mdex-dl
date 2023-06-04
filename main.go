@@ -12,7 +12,7 @@ type Args struct {
   Lang    string  `name:"lang" description:"Translator language" default:"en"`
   Start   int     `name:"sc" description:"Start Chapter" default:1`
   End     int     `name:"ec" description:"End Chapter" default:0`
-  Saver   bool     `name:"ds" description:"Data Saver mode" default:"true"`
+  Saver   bool    `name:"ds" description:"Data Saver mode" default:"true"`
 }
 
 

@@ -57,13 +57,35 @@ func createFile(basePath, filename string, imageBytes io.ReadCloser) error {
   return nil
 }
 
-func makeProgressBar() {
-  uiprogress.Start()            // start rendering
-  bar := uiprogress.AddBar(100) // Add a new bar
+func makeSimpleProgressBar() {
+  uiprogress.Start()
 
+  bar := uiprogress.AddBar(100).AppendCompleted().PrependElapsed()
 
   for bar.Incr() {
-    time.Sleep(time.Millisecond * 20)
+    time.Sleep(time.Millisecond * 30)
+  }
+
+}
+
+func makeProgressBar(lenght int, label string) {
+  dummyStep := make([]string, lenght)
+
+  for i := 0; i < lenght; i++ {
+    dummyStep[i] = fmt.Sprintf("image %v", i)
+  }
+
+  uiprogress.Start()
+  bar := uiprogress.AddBar(lenght).AppendCompleted().PrependElapsed()
+
+  // prepend the current step to the bar
+  bar.PrependFunc(func(b *uiprogress.Bar) string {
+    return label+": " 
+  })
+
+  for i:= 0; i < lenght; i++ {
+    time.Sleep(time.Millisecond * 10)
+    bar.Incr()
   }
 }
 
@@ -97,8 +119,7 @@ func DownloadManga(mangaUrl, lang string,
       panic(err)
     }
 
-    fmt.Println("Downloading ", title)
-    fmt.Println("Start Chapter: ", startChapter, "End Chapter: ", endChapter)
+    fmt.Println("Downloading ", title, "Start Chapter: ", startChapter, "End Chapter: ", endChapter)
 
     jsonparser.ArrayEach(feed, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
     
@@ -121,6 +142,8 @@ func DownloadManga(mangaUrl, lang string,
     targetDir, err := makeDir(saveDir, filepath.Join("volume-"+volume, "chapter-"+chapterNumber))
     if err != nil {log.Fatal(err)}
 
+    // makeProgressBar(int(pages), chapterNumber)
+
     // Downloads chapter images
     jsonparser.ArrayEach(chapterImages, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
       imageName := string(value)
@@ -128,7 +151,6 @@ func DownloadManga(mangaUrl, lang string,
       image := FetchImage(imageUrl)
 
       e := createFile(targetDir, imageName, image)
-      fmt.Println(imageUrl)
 
       if e != nil {
         log.Fatal("unable to download image", e)

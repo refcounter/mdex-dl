@@ -86,8 +86,8 @@ func SearchTitle(title string ) []byte {
 func FetchImage(url string) io.ReadCloser  {
   res, err := phttp.Get(url)
 
-  makeProgressBar()
-  
+  makeSimpleProgressBar()
+
   if err != nil {
     log.Fatal(err)
   }
