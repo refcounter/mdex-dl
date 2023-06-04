@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/buger/jsonparser"
@@ -66,45 +67,40 @@ func makeProgressBar() {
   }
 }
 
-func DownloadManga(mangaId, lang string, 
-  startChapter, endChapter uint16, dataSaver bool) {
-   if lang == "" {
-     lang = "en"
-   }
+func parseMangaFromLink(url string) (title, id string) {
+  urlParts := strings.Split(url, "/")
+  return urlParts[len(urlParts)-1], urlParts[len(urlParts)-2]
+}
 
-   imageQuality := "dataSaver"
-   downloadQuality := "data-saver"
-   if !dataSaver {
-     imageQuality = "data" // original quality
-     downloadQuality = "data"
-   }
+func DownloadManga(mangaUrl, lang string, 
+  startChapter, endChapter int, dataSaver bool) {
 
-   // Fetch Manga Feed (ie, chapters and volumes)
-   feed := GetFeed(mangaId, lang)
-   manga := GetManga(mangaId)
+    title, mangaId := parseMangaFromLink(mangaUrl) 
+    imageQuality := "dataSaver"
+    downloadQuality := "data-saver"
+    if !dataSaver {
+      imageQuality = "data" // original quality
+      downloadQuality = "data"
+    }
+    
+    // Fetch Manga Feed (ie, chapters and volumes)
+    feed := GetFeed(mangaId, lang)
+    lastChapter, _ := jsonparser.GetInt(feed, "total")
 
-   title, _ := jsonparser.GetString(manga, "data", "attributes", "title", "en")
-   lastChapter, _ := jsonparser.GetInt(feed, "total")
+    if endChapter == 0 { 
+      endChapter = int(lastChapter) 
+    }
 
-   if startChapter == 0 {
-     startChapter = 1
-   }
+    // make target dir
+    saveDir, err := makeDir(".", title)
+    if err != nil {
+      panic(err)
+    }
 
-   if endChapter == 0 {
-     endChapter = uint16(lastChapter)
-   }
+    fmt.Println("Downloading ", title)
+    fmt.Println("Start Chapter: ", startChapter, "End Chapter: ", endChapter)
 
-   // make target dir
-   saveDir, err := makeDir(".", title)
-
-   if err != nil {
-     panic(err)
-   }
-
-   fmt.Println("Downloading ", title)
-   fmt.Println("Start Chapter: ", startChapter, "End Chapter: ", endChapter)
-
-   jsonparser.ArrayEach(feed, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
+    jsonparser.ArrayEach(feed, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
     
       chapterId, err := jsonparser.GetString(value, "id")
 
