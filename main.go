@@ -32,9 +32,9 @@ func runCli() {
     }
 
     if args.Single {
-      SingleDownload(args.Url, args.Saver)
+      SingleDownload(args.Url, args.Dir ,args.Saver)
     } else {
-      DownloadManga(args.Url, args.Lang ,args.Start, args.End, args.Saver)
+      DownloadManga(args.Url, args.Lang, args.Dir, args.Start, args.End, args.Saver)
     }
 
 		return nil

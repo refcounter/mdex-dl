@@ -94,7 +94,7 @@ func parseMangaFromLink(url string) (title, id string) {
   return urlParts[len(urlParts)-1], urlParts[len(urlParts)-2]
 }
 
-func SingleDownload(mangaUrl string, dataSaver bool)  {
+func SingleDownload(mangaUrl, baseDir string, dataSaver bool)  {
   // chapter is the last index, the other can be ignored
   chapterId, _ := parseMangaFromLink(mangaUrl)
 
@@ -109,7 +109,7 @@ func SingleDownload(mangaUrl string, dataSaver bool)  {
   baseUrl, _ := jsonparser.GetString(imagesLink, "baseUrl")
   chapterHash, _ := jsonparser.GetString(imagesLink, "chapter", "hash")
   
-  targetDir, err := makeDir(".", "singleDownload-"+chapterHash) 
+  targetDir, err := makeDir(filepath.Join(baseDir), "singleDownload-"+chapterHash) 
   
   if err != nil {
     log.Fatal("Error making directories")
@@ -134,7 +134,7 @@ func SingleDownload(mangaUrl string, dataSaver bool)  {
   fmt.Println("Done!")
 }
 
-func DownloadManga(mangaUrl, lang string, 
+func DownloadManga(mangaUrl, lang, baseDir string, 
   startChapter, endChapter int, dataSaver bool) {
 
     title, mangaId := parseMangaFromLink(mangaUrl) 
@@ -154,7 +154,7 @@ func DownloadManga(mangaUrl, lang string,
     }
 
     // make target dir
-    saveDir, err := makeDir(".", title)
+    saveDir, err := makeDir(filepath.Join(baseDir), title)
     if err != nil {
       panic(err)
     }

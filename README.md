@@ -46,9 +46,10 @@ Flags:
 ## ToDo
 - [x]   Download Whole Manga
 - [x]   Download Single Chapter
-- [ ]   Download to Custom Directory
+- [x]   Download to Custom Directory
 - [x]   Show Download Progess
 - [ ]   Download Cover
+- [ ]   Continue Downloads
 - [ ]   Make it Concurent
 
 ## License
