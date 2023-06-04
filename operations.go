@@ -2,20 +2,16 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/buger/jsonparser"
+	"github.com/gosuri/uiprogress"
 )
 
-// exported, so i can reuse later...
-func DownloadChapter(value []byte, dataType jsonparser.ValueType, 
-  offset int, err error) {
-
-}
-
-// Yeah i stole it from some random guy on stackoverflow lmfao
 func exists(path string) bool {
   _, err := os.Stat(path)
   if err == nil { return true }
@@ -31,7 +27,7 @@ func makeDir(baseDir, dirName string) (string, error) {
     return dirPath, nil
   } else {
     // Make dir if it doesn't exist
-    err := os.Mkdir(dirPath, 777)
+    err := os.MkdirAll(dirPath, 0755)
 
     if err == nil {
       return dirPath, nil
@@ -41,11 +37,49 @@ func makeDir(baseDir, dirName string) (string, error) {
   }
 }
 
-func DownloadManga(mangaId, lang string, startChapter, endChapter uint16) {
+func createFile(basePath, filename string, imageBytes io.ReadCloser) error {
+  //Create a empty file
+	file, err := os.Create(filepath.Join(basePath, filename))
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+  defer imageBytes.Close()
+
+	//Write the bytes to the file
+	_, err = io.Copy(file, imageBytes)
+	if err != nil {
+		return err
+	}
+
+  return nil
+}
+
+func makeProgressBar() {
+  uiprogress.Start()            // start rendering
+  bar := uiprogress.AddBar(100) // Add a new bar
+
+
+  for bar.Incr() {
+    time.Sleep(time.Millisecond * 20)
+  }
+}
+
+func DownloadManga(mangaId, lang string, 
+  startChapter, endChapter uint16, dataSaver bool) {
    if lang == "" {
      lang = "en"
    }
 
+   imageQuality := "dataSaver"
+   downloadQuality := "data-saver"
+   if !dataSaver {
+     imageQuality = "data" // original quality
+     downloadQuality = "data"
+   }
+
+   // Fetch Manga Feed (ie, chapters and volumes)
    feed := GetFeed(mangaId, lang)
    manga := GetManga(mangaId)
 
@@ -67,6 +101,9 @@ func DownloadManga(mangaId, lang string, startChapter, endChapter uint16) {
      panic(err)
    }
 
+   fmt.Println("Downloading ", title)
+   fmt.Println("Start Chapter: ", startChapter, "End Chapter: ", endChapter)
+
    jsonparser.ArrayEach(feed, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
     
       chapterId, err := jsonparser.GetString(value, "id")
@@ -75,23 +112,33 @@ func DownloadManga(mangaId, lang string, startChapter, endChapter uint16) {
         log.Panic("No available chapter id", err)
       }
     
-    // chapter may (or may not have a title) 
-    title, _ := jsonparser.GetString(value, "attributes", "title")
-
     chapterNumber, _ := jsonparser.GetString(value, "attributes", "chapter")
     volume, _ := jsonparser.GetString(value, "attributes", "volume")
-    pages, _ :=  jsonparser.GetInt(value, "attributes", "pages")
+    // pages, _ :=  jsonparser.GetInt(value, "attributes", "pages")
 
-    fmt.Println(title, chapterNumber, volume, pages, chapterId)
+    fmt.Println("Chapter: ", chapterNumber)
 
     chapterImages := GetChapterImage(chapterId)
-    // baseUrl, _ := jsonparser.GetString(chapterImages, "baseUrl")
-    // hash, _ := jsonparser.GetString(chapterImages, "chapter")
+    baseUrl, _ := jsonparser.GetString(chapterImages, "baseUrl")
+    chapterHash, _ := jsonparser.GetString(chapterImages, "chapter", "hash")
 
-    jsonparser.ArrayEach(chapterImages, DownloadChapter, "chapter", "dataSaver")
+    targetDir, err := makeDir(saveDir, filepath.Join("volume-"+volume, "chapter-"+chapterNumber))
+    if err != nil {log.Fatal(err)}
+
+    // Downloads chapter images
+    jsonparser.ArrayEach(chapterImages, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
+      imageName := string(value)
+      imageUrl := baseUrl +"/"+ downloadQuality +"/"+ chapterHash +"/"+ imageName
+      image := FetchImage(imageUrl)
+
+      e := createFile(targetDir, imageName, image)
+      fmt.Println(imageUrl)
+
+      if e != nil {
+        log.Fatal("unable to download image", e)
+      }
+      
+
+    }, "chapter", imageQuality)
   }, "data" )
-
-   fmt.Println(saveDir, lastChapter)
  }
-
-

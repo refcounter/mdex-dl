@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"log"
 
 	"github.com/sethgrid/pester"
@@ -80,4 +81,16 @@ func SearchTitle(title string ) []byte {
   }
 
   return parseBody(res.Body)
+}
+
+func FetchImage(url string) io.ReadCloser  {
+  res, err := phttp.Get(url)
+
+  makeProgressBar()
+  
+  if err != nil {
+    log.Fatal(err)
+  }
+
+  return res.Body
 }
