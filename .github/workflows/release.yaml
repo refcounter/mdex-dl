@@ -18,6 +18,8 @@ jobs:
             goos: darwin
           - goarch: arm64
             goos: windows
+          - goarch: armv7
+            goos: [windows, darwin]
     steps:
     - uses: actions/checkout@v3
     - uses: wangyoucao577/go-release-action@v1
